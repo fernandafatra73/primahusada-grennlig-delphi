@@ -13,6 +13,7 @@ import { apiDelete, apiGet, apiPatch, apiPost } from '../lib/api.ts';
 import { formatDateShort, formatRupiah } from '../lib/format.ts';
 import type { PaginatedResponse } from '../lib/pagination.ts';
 import { formatRadiologName } from '../lib/pasienPrint.ts';
+import { rad2FieldsFromPendaftaran, type Rad2PendaftaranSource } from '../lib/rad2Pendaftaran.ts';
 import { computeRad2Sharing, type Rad2SharingResult } from '../lib/rad2Sharing.ts';
 import { printRadiologyReport } from '../pdf/printRadiologyReport.tsx';
 import '../components/ui/ui.css';
@@ -49,6 +50,11 @@ interface JenisPemeriksaanOption extends NamaOption {
 interface PilihanSharingOption {
   readonly id: string;
   readonly nominal: number;
+}
+
+interface PendaftaranOption extends Rad2PendaftaranSource {
+  readonly id: string;
+  readonly noRegistrasi: string;
 }
 
 interface Rad2Form {
@@ -149,19 +155,22 @@ export function Rad2Page() {
   const [radiologOptions, setRadiologOptions] = useState<readonly NamaOption[]>([]);
   const [jenisOptions, setJenisOptions] = useState<readonly JenisPemeriksaanOption[]>([]);
   const [sharingOptions, setSharingOptions] = useState<readonly PilihanSharingOption[]>([]);
+  const [pendaftaranOptions, setPendaftaranOptions] = useState<readonly PendaftaranOption[]>([]);
 
   const loadOptions = useCallback(async () => {
     // Pilihan hanya membantu pengisian; kalau gagal dimuat, form tetap bisa diketik manual.
-    const [dokter, radiolog, jenis, sharing] = await Promise.allSettled([
+    const [dokter, radiolog, jenis, sharing, pendaftaran] = await Promise.allSettled([
       apiGet<{ items: NamaOption[] }>('/api/dokter?limit=100'),
       apiGet<{ items: NamaOption[] }>('/api/radiolog?limit=100'),
       apiGet<{ items: JenisPemeriksaanOption[] }>('/api/jenis-pemeriksaan?limit=100'),
       apiGet<{ items: PilihanSharingOption[] }>('/api/pilihan-sharing'),
+      apiGet<{ items: PendaftaranOption[] }>('/api/pendaftaran-umum?limit=200'),
     ]);
     setDokterOptions(dokter.status === 'fulfilled' ? dokter.value.items : []);
     setRadiologOptions(radiolog.status === 'fulfilled' ? radiolog.value.items : []);
     setJenisOptions(jenis.status === 'fulfilled' ? jenis.value.items : []);
     setSharingOptions(sharing.status === 'fulfilled' ? sharing.value.items : []);
+    setPendaftaranOptions(pendaftaran.status === 'fulfilled' ? pendaftaran.value.items : []);
   }, []);
 
   useEffect(() => {
@@ -182,6 +191,23 @@ export function Rad2Page() {
         ...f,
         pemeriksaan: value,
         harga: match?.harga ? String(Math.round(Number(match.harga))) : f.harga,
+      }),
+    );
+  }
+
+  function handlePendaftaranSelect(id: string) {
+    const selected = pendaftaranOptions.find((p) => p.id === id);
+    if (!selected) return;
+    const fields = rad2FieldsFromPendaftaran(selected);
+    // Kolom pendaftaran yang kosong tidak menimpa isian yang sudah diketik.
+    setForm((f) =>
+      withAutoSharing({
+        ...f,
+        nama: fields.nama,
+        umur: fields.umur || f.umur,
+        alamat: fields.alamat || f.alamat,
+        pengirim: fields.pengirim || f.pengirim,
+        klinis: fields.klinis || f.klinis,
       }),
     );
   }
@@ -445,6 +471,19 @@ export function Rad2Page() {
       {(createOpen || editing) && (
         <Modal open={true} title={editing ? 'Ubah Data Rad2' : 'Tambah Data Rad2'} onClose={closeModal}>
           <form onSubmit={(e) => void handleSubmit(e)} className="form-grid">
+            {!editing && (
+              <div className="form-field form-field--full">
+                <label htmlFor="rad2-pendaftaran">Ambil dari Pendaftaran (Opsional)</label>
+                <select id="rad2-pendaftaran" value="" onChange={(e) => handlePendaftaranSelect(e.target.value)}>
+                  <option value="">-- Pilih Pasien / Ketik Manual di Bawah --</option>
+                  {pendaftaranOptions.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.namaPasien} ({p.noRegistrasi})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
             <div className="form-field form-field--full">
               <label htmlFor="rad2-nama">Nama *</label>
               <input id="rad2-nama" required value={form.nama} onChange={(e) => updateForm('nama', e.target.value)} />

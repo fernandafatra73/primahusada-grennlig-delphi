@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { apiGet, apiPatch, apiPost } from '../lib/api.ts';
 import { insertTextAt } from '../lib/insertText.ts';
+import { filterKesanTemplates } from '../lib/kesanTemplateFilter.ts';
 import { Modal } from './ui/Modal.tsx';
 import './ui/ui.css';
 
@@ -39,6 +40,8 @@ export function KesanEditorModal({
   const [templates, setTemplates] = useState<readonly KesanTemplateRow[]>([]);
   const [loadingTemplates, setLoadingTemplates] = useState(true);
   const [templateError, setTemplateError] = useState<string | null>(null);
+  const [templateSearch, setTemplateSearch] = useState('');
+  const visibleTemplates = filterKesanTemplates(templates, templateSearch);
 
   const [addOpen, setAddOpen] = useState(false);
   /** Template yang sedang diubah; null berarti form dipakai untuk menambah. */
@@ -81,6 +84,13 @@ export function KesanEditorModal({
     const result = insertTextAt(kesan, isi, start, end);
     pendingCursorRef.current = result.cursor;
     setKesan(result.text);
+  }
+
+  function handleClear() {
+    pendingCursorRef.current = 0;
+    setKesan('');
+    // Kalau teks sudah kosong, state tidak berubah sehingga fokus dipindah langsung.
+    textareaRef.current?.focus();
   }
 
   function openAdd() {
@@ -158,6 +168,9 @@ export function KesanEditorModal({
           <button type="button" className="btn btn--secondary" onClick={openAdd} disabled={addOpen}>
             + Tambah Kesan
           </button>
+          <button type="button" className="btn btn--danger" onClick={handleClear} disabled={kesan === ''}>
+            Kosongkan Teks
+          </button>
         </div>
 
         {addOpen && (
@@ -192,6 +205,17 @@ export function KesanEditorModal({
           </div>
         )}
 
+        <div className="form-field form-grid--full">
+          <label htmlFor="rad2-kesan-cari">Pencarian Data</label>
+          <input
+            id="rad2-kesan-cari"
+            type="search"
+            value={templateSearch}
+            onChange={(e) => setTemplateSearch(e.target.value)}
+            placeholder="Cari judul atau isi kesan..."
+          />
+        </div>
+
         <div className="form-grid--full" style={{ maxHeight: '320px', overflowY: 'auto' }}>
           <table className="data-table" style={{ width: '100%' }}>
             <thead>
@@ -221,8 +245,14 @@ export function KesanEditorModal({
                     Belum ada kesan.
                   </td>
                 </tr>
+              ) : visibleTemplates.length === 0 ? (
+                <tr>
+                  <td colSpan={4} style={{ textAlign: 'center', padding: '1rem' }}>
+                    Tidak ada kesan yang cocok dengan pencarian.
+                  </td>
+                </tr>
               ) : (
-                templates.map((t, idx) => (
+                visibleTemplates.map((t, idx) => (
                   <tr
                     key={t.id}
                     onClick={() => handlePick(t.isi)}

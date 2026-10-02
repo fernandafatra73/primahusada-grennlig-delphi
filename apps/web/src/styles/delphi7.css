@@ -464,7 +464,7 @@
 
   /* Teks berjalan di bawah: dibuat seperti TStatusBar. */
   :root .autotext-bar {
-    background: var(--d7-panel);
+    background: #c9eccd;
     border-top: 1px solid var(--d7-dark);
     box-shadow: inset 0 1px 0 var(--d7-hilite);
   }
