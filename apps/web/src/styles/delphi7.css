@@ -394,12 +394,12 @@
   }
 
   :root .app-navbar {
-    --navbar-bg: var(--d7-panel);
+    --navbar-bg: #b9d7f5;
     --navbar-icon-fg: #000000;
     --navbar-border: var(--d7-dark);
     --navbar-fg: #000000;
     --navbar-fg-muted: var(--color-text-muted);
-    --navbar-hover-bg: var(--d7-face-light);
+    --navbar-hover-bg: #dcebfa;
     --navbar-active-bg: var(--d7-select);
 
     border-top: 1px solid var(--d7-hilite);
