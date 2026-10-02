@@ -1,31 +1,31 @@
-/* Tema tampilan ala Delphi 7 (form klasik Windows) dengan warna biru muda
-   dan hijau muda. File ini hanya menimpa tampilan komponen bersama; dibungkus
+/* Tema tampilan ala Delphi 7 (form klasik Windows) dengan warna aslinya
+   (abu-abu clBtnFace) ditambah aksen biru. File ini hanya menimpa tampilan komponen bersama; dibungkus
    `@media screen` supaya hasil cetak (print) tidak ikut berubah. Untuk
    mematikan tema, hapus baris @import-nya di index.css. */
 @media screen {
   :root {
-    --d7-face: #d3e9f8;
-    --d7-face-light: #eaf5fc;
-    --d7-panel: #dcf3df;
-    --d7-panel-dark: #c2e6c7;
+    --d7-face: #d4d0c8;
+    --d7-face-light: #e8e5de;
+    --d7-panel: #d4d0c8;
+    --d7-panel-dark: #c8c4bc;
     --d7-hilite: #ffffff;
-    --d7-shadow: #7f9db9;
-    --d7-dark: #4a6a85;
-    --d7-grid: #b9cbd8;
-    --d7-select: #3a8ee6;
-    --d7-title-from: #2f7fc9;
-    --d7-title-to: #7ccb93;
+    --d7-shadow: #808080;
+    --d7-dark: #404040;
+    --d7-grid: #c0c0c0;
+    --d7-select: #0a246a;
+    --d7-title-from: #0a246a;
+    --d7-title-to: #a6caf0;
 
     --color-bg-page: var(--d7-face);
     --color-bg-surface: var(--d7-panel);
-    --color-primary: #1f6fb5;
-    --color-primary-soft: #c5e1f6;
-    --color-primary-hover: #185a94;
-    --color-primary-muted: #8dbde3;
+    --color-primary: #0a246a;
+    --color-primary-soft: #c9d8f0;
+    --color-primary-hover: #1c3f94;
+    --color-primary-muted: #8ea9d8;
 
-    --color-text-heading: #0b3a66;
+    --color-text-heading: #0a246a;
     --color-text-body: #000000;
-    --color-text-muted: #47596a;
+    --color-text-muted: #4d4d4d;
     --color-border: var(--d7-shadow);
 
     --color-success: #0b6b1f;
@@ -124,7 +124,7 @@
   }
 
   :root .btn--primary:hover {
-    background: #eefaf0;
+    background: var(--d7-face-light);
   }
 
   :root .btn--danger {
@@ -344,7 +344,7 @@
 
   /* ---------- Modal (jendela dialog dengan title bar) ---------- */
   :root .modal-overlay {
-    background: rgba(40, 70, 100, 0.35);
+    background: rgba(0, 0, 0, 0.35);
     backdrop-filter: none;
   }
 
@@ -355,7 +355,7 @@
     background: var(--d7-face);
     box-shadow:
       inset -1px -1px 0 var(--d7-shadow),
-      3px 3px 0 rgba(40, 70, 100, 0.35);
+      3px 3px 0 rgba(0, 0, 0, 0.35);
   }
 
   :root .modal .modal__header {
@@ -400,7 +400,7 @@
     --navbar-fg: #000000;
     --navbar-fg-muted: var(--color-text-muted);
     --navbar-hover-bg: var(--d7-face-light);
-    --navbar-active-bg: var(--d7-face);
+    --navbar-active-bg: var(--d7-select);
 
     border-top: 1px solid var(--d7-hilite);
     box-shadow: none;
@@ -435,6 +435,7 @@
   :root .app-navbar__link--active,
   :root .app-navbar__link--open {
     border-color: var(--d7-dark) var(--d7-hilite) var(--d7-hilite) var(--d7-dark);
+    color: #ffffff;
     font-weight: 700;
   }
 
@@ -445,7 +446,7 @@
     border-color: var(--d7-hilite) var(--d7-dark) var(--d7-dark) var(--d7-hilite);
     border-radius: 0;
     background: var(--d7-face-light);
-    box-shadow: 2px 2px 0 rgba(40, 70, 100, 0.35);
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.35);
   }
 
   :root .app-navbar__dropdown-link {
