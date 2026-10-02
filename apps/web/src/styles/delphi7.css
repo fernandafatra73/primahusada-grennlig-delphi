@@ -1,0 +1,485 @@
+/* Tema tampilan ala Delphi 7 (form klasik Windows) dengan warna biru muda
+   dan hijau muda. File ini hanya menimpa tampilan komponen bersama; dibungkus
+   `@media screen` supaya hasil cetak (print) tidak ikut berubah. Untuk
+   mematikan tema, hapus baris @import-nya di index.css. */
+@media screen {
+  :root {
+    --d7-face: #d3e9f8;
+    --d7-face-light: #eaf5fc;
+    --d7-panel: #dcf3df;
+    --d7-panel-dark: #c2e6c7;
+    --d7-hilite: #ffffff;
+    --d7-shadow: #7f9db9;
+    --d7-dark: #4a6a85;
+    --d7-grid: #b9cbd8;
+    --d7-select: #3a8ee6;
+    --d7-title-from: #2f7fc9;
+    --d7-title-to: #7ccb93;
+
+    --color-bg-page: var(--d7-face);
+    --color-bg-surface: var(--d7-panel);
+    --color-primary: #1f6fb5;
+    --color-primary-soft: #c5e1f6;
+    --color-primary-hover: #185a94;
+    --color-primary-muted: #8dbde3;
+
+    --color-text-heading: #0b3a66;
+    --color-text-body: #000000;
+    --color-text-muted: #47596a;
+    --color-border: var(--d7-shadow);
+
+    --color-success: #0b6b1f;
+    --color-success-soft: #c9eccd;
+    --color-danger: #b00020;
+    --color-danger-soft: #ffe0e0;
+    --color-warning: #7a5200;
+    --color-warning-soft: #fff3c4;
+
+    --shadow-header: none;
+    --shadow-card: none;
+    --radius-card: 0;
+    --radius-button: 0;
+
+    font-family: Tahoma, 'MS Sans Serif', 'Segoe UI', sans-serif;
+  }
+
+  /* Kontrol input tanpa kelas: bingkai cekung (sunken) seperti TEdit. */
+  :where(input:not([type='checkbox'], [type='radio'], [type='range'], [type='file'], [type='color'])),
+  :where(select),
+  :where(textarea) {
+    border: 1px solid;
+    border-color: var(--d7-dark) var(--d7-hilite) var(--d7-hilite) var(--d7-dark);
+    border-radius: 0;
+    background: #ffffff;
+    color: #000000;
+  }
+
+  /* ---------- Tombol (TButton / TBitBtn) ---------- */
+  :root .btn,
+  :root .quickdate-btn,
+  :root .filter-pill,
+  :root .filter-chip,
+  :root .icon-btn,
+  :root .app-navbar__icon-btn,
+  :root .modal__close,
+  :root .aifoto-analyze-btn {
+    border: 1px solid;
+    border-color: var(--d7-hilite) var(--d7-dark) var(--d7-dark) var(--d7-hilite);
+    border-radius: 0;
+    background: var(--d7-face);
+    color: #000000;
+    font-weight: 400;
+    box-shadow:
+      inset -1px -1px 0 var(--d7-shadow),
+      inset 1px 1px 0 var(--d7-face-light);
+    transition: none;
+  }
+
+  :root .btn:hover,
+  :root .quickdate-btn:hover,
+  :root .filter-pill:hover,
+  :root .filter-chip:hover,
+  :root .icon-btn:hover,
+  :root .app-navbar__icon-btn:hover,
+  :root .modal__close:hover,
+  :root .aifoto-analyze-btn:hover {
+    background: var(--d7-face-light);
+    color: #000000;
+  }
+
+  :root .btn:active,
+  :root .quickdate-btn:active,
+  :root .filter-pill:active,
+  :root .filter-chip:active,
+  :root .icon-btn:active,
+  :root .app-navbar__icon-btn:active,
+  :root .modal__close:active,
+  :root .quickdate-btn--active,
+  :root .filter-pill--active,
+  :root .filter-chip--active {
+    border-color: var(--d7-dark) var(--d7-hilite) var(--d7-hilite) var(--d7-dark);
+    background: var(--d7-panel-dark);
+    color: #000000;
+    box-shadow: inset 1px 1px 0 var(--d7-shadow);
+  }
+
+  :root .btn:focus-visible,
+  :root .icon-btn:focus-visible {
+    outline: 1px dotted #000000;
+    outline-offset: -4px;
+  }
+
+  :root .btn:disabled {
+    color: var(--d7-shadow);
+    text-shadow: 1px 1px 0 var(--d7-hilite);
+    cursor: default;
+  }
+
+  /* Tombol default: garis luar hitam seperti tombol Default di form Delphi. */
+  :root .btn--primary {
+    background: var(--d7-panel);
+    font-weight: 700;
+    outline: 1px solid #000000;
+    outline-offset: 0;
+  }
+
+  :root .btn--primary:hover {
+    background: #eefaf0;
+  }
+
+  :root .btn--danger {
+    color: var(--color-danger);
+  }
+
+  /* Tombol AI aslinya berupa pil gradasi beranimasi; di tema ini dibuat diam. */
+  :root .aifoto-analyze-btn,
+  :root .aifoto-analyze-btn:hover:not(:disabled) {
+    animation: none;
+    transform: none;
+  }
+
+  :root .link-btn {
+    color: var(--color-primary);
+  }
+
+  /* ---------- Input (TEdit / TComboBox / TMemo) ---------- */
+  :root .form-field input,
+  :root .form-field select,
+  :root .form-field textarea,
+  :root .legacy-form-row > input,
+  :root .legacy-form-row > select,
+  :root .legacy-form-row > textarea,
+  :root .legacy-form-row > div > input,
+  :root .legacy-form-row > div > select,
+  :root .filter-control,
+  :root .quickdate-range input[type='date'],
+  :root .dashboard-music-player__select,
+  :root .checkbox-list {
+    border: 1px solid;
+    border-color: var(--d7-dark) var(--d7-hilite) var(--d7-hilite) var(--d7-dark);
+    border-radius: 0;
+    background-color: #ffffff;
+    color: #000000;
+    box-shadow: inset 1px 1px 0 var(--d7-shadow);
+    transition: none;
+  }
+
+  :root .form-field input:focus,
+  :root .form-field select:focus,
+  :root .form-field textarea:focus,
+  :root .legacy-form-row > input:focus,
+  :root .legacy-form-row > select:focus,
+  :root .legacy-form-row > textarea:focus,
+  :root .filter-control--search:focus-within,
+  :root .filter-control--select:focus {
+    outline: 1px solid var(--d7-select);
+    outline-offset: 0;
+    border-color: var(--d7-dark) var(--d7-hilite) var(--d7-hilite) var(--d7-dark);
+    box-shadow: inset 1px 1px 0 var(--d7-shadow);
+  }
+
+  :root .form-field input:disabled,
+  :root .form-field select:disabled,
+  :root .form-field textarea:disabled,
+  :root .form-field input[readonly] {
+    background-color: var(--d7-face-light);
+    color: var(--color-text-muted);
+  }
+
+  :root .filter-search__input {
+    border: none;
+    box-shadow: none;
+    background: transparent;
+  }
+
+  :root .form-field label,
+  :root .legacy-form-row > label,
+  :root .form-field__static-label {
+    color: #000000;
+    font-weight: 400;
+  }
+
+  /* ---------- Panel, kartu, groupbox (TPanel / TGroupBox) ---------- */
+  :root .panel,
+  :root .card,
+  :root .data-card,
+  :root .chart-card,
+  :root .metric-card,
+  :root .page-summary-card,
+  :root .placeholder-page,
+  :root .dashboard-music-player,
+  :root .dashboard-image-placeholder,
+  :root .login-panel {
+    border: 1px solid;
+    border-color: var(--d7-hilite) var(--d7-dark) var(--d7-dark) var(--d7-hilite);
+    border-radius: 0;
+    background: var(--d7-panel);
+    box-shadow: inset -1px -1px 0 var(--d7-shadow);
+  }
+
+  :root .page-summary-card {
+    border-left: 4px solid var(--summary-accent, var(--color-primary));
+  }
+
+  :root .chart-card.dashboard-row__chart {
+    background: var(--d7-panel);
+  }
+
+  :root .dashboard-music-player__title,
+  :root .dashboard-row__chart .chart-card__title {
+    color: var(--color-text-heading);
+  }
+
+  :root .legacy-groupbox,
+  :root .legacy-groupbox--biru-hitam,
+  :root .groupbox--abu-abu {
+    border: 1px solid var(--d7-shadow);
+    border-radius: 0;
+    background: var(--d7-panel);
+    box-shadow:
+      1px 1px 0 var(--d7-hilite),
+      inset 1px 1px 0 var(--d7-hilite);
+  }
+
+  :root .legacy-groupbox > legend,
+  :root .legacy-groupbox--biru-hitam > legend,
+  :root .groupbox--abu-abu > legend {
+    padding: 0 0.4rem;
+    border: none;
+    border-radius: 0;
+    background: var(--d7-panel);
+    color: var(--color-text-heading);
+    font-weight: 700;
+  }
+
+  :root .legacy-groupbox--biru-hitam .legacy-form-row > label {
+    color: #000000;
+    font-weight: 400;
+  }
+
+  :root .legacy-photo-box {
+    border: 1px solid;
+    border-color: var(--d7-dark) var(--d7-hilite) var(--d7-hilite) var(--d7-dark);
+    border-radius: 0;
+    background: #ffffff;
+  }
+
+  /* ---------- Kerangka halaman modul (form Delphi) ---------- */
+  :root .page-frame {
+    border: 1px solid;
+    border-color: var(--d7-hilite) var(--d7-dark) var(--d7-dark) var(--d7-hilite);
+    border-radius: 0;
+    background: var(--d7-face);
+    color: #000000;
+    box-shadow: inset -1px -1px 0 var(--d7-shadow);
+  }
+
+  :root .page-frame .list-page__title,
+  :root .page-heading__title,
+  :root .list-page__title {
+    color: var(--color-text-heading);
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+
+  :root .page-frame .data-card {
+    border: 1px solid;
+    border-color: var(--d7-dark) var(--d7-hilite) var(--d7-hilite) var(--d7-dark);
+    border-radius: 0;
+    background: #ffffff;
+  }
+
+  /* ---------- Tabel (TDBGrid) ---------- */
+  :root .data-table,
+  :root .table {
+    background: #ffffff;
+    border: 1px solid var(--d7-shadow);
+  }
+
+  :root .data-table th,
+  :root .data-table td {
+    padding: 0.3rem 0.5rem;
+    border-right: 1px solid var(--d7-grid);
+    border-bottom: 1px solid var(--d7-grid);
+  }
+
+  :root .data-table th,
+  :root .page-frame .data-table th {
+    border: 1px solid;
+    border-color: var(--d7-hilite) var(--d7-dark) var(--d7-dark) var(--d7-hilite);
+    background: var(--d7-panel-dark);
+    color: #000000;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  :root .data-table tbody tr:hover {
+    background: var(--color-primary-soft);
+  }
+
+  :root .table-filter-bar {
+    background: var(--d7-face);
+    border-bottom: 1px solid var(--d7-shadow);
+  }
+
+  :root .filter-tab--active {
+    color: var(--color-text-heading);
+    border-bottom-color: var(--color-primary);
+  }
+
+  /* ---------- Lencana & pesan ---------- */
+  :root .badge {
+    border: 1px solid var(--d7-shadow);
+    border-radius: 0;
+  }
+
+  :root .alert,
+  :root .login-form__error {
+    border: 1px solid;
+    border-color: var(--d7-dark) var(--d7-hilite) var(--d7-hilite) var(--d7-dark);
+    border-radius: 0;
+  }
+
+  /* ---------- Modal (jendela dialog dengan title bar) ---------- */
+  :root .modal-overlay {
+    background: rgba(40, 70, 100, 0.35);
+    backdrop-filter: none;
+  }
+
+  :root .modal {
+    border: 1px solid;
+    border-color: var(--d7-hilite) var(--d7-dark) var(--d7-dark) var(--d7-hilite);
+    border-radius: 0;
+    background: var(--d7-face);
+    box-shadow:
+      inset -1px -1px 0 var(--d7-shadow),
+      3px 3px 0 rgba(40, 70, 100, 0.35);
+  }
+
+  :root .modal .modal__header {
+    padding: 0.3rem 0.4rem 0.3rem 0.6rem;
+    border-bottom: 1px solid var(--d7-dark);
+    background: linear-gradient(90deg, var(--d7-title-from) 0%, var(--d7-title-to) 100%);
+  }
+
+  :root .modal .modal__header .modal__title {
+    color: #ffffff;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-shadow: 1px 1px 0 rgba(0, 40, 80, 0.45);
+  }
+
+  :root .modal .modal__header .modal__close {
+    width: 22px;
+    height: 20px;
+    background: var(--d7-face);
+    color: #000000;
+    font-size: 1.1rem;
+  }
+
+  :root .modal .modal__header .modal__close:hover {
+    background: var(--d7-face-light);
+    color: #000000;
+  }
+
+  /* ---------- Navbar (TMainMenu + toolbar) ---------- */
+  :root .app-shell__accent-bar {
+    background: linear-gradient(90deg, var(--d7-title-from), var(--d7-title-to));
+  }
+
+  :root .app-shell__accent-bar span {
+    background: transparent;
+  }
+
+  :root .app-navbar {
+    --navbar-bg: var(--d7-panel);
+    --navbar-icon-fg: #000000;
+    --navbar-border: var(--d7-dark);
+    --navbar-fg: #000000;
+    --navbar-fg-muted: var(--color-text-muted);
+    --navbar-hover-bg: var(--d7-face-light);
+    --navbar-active-bg: var(--d7-face);
+
+    border-top: 1px solid var(--d7-hilite);
+    box-shadow: none;
+  }
+
+  :root .app-navbar__title {
+    color: var(--color-text-heading);
+  }
+
+  :root .app-navbar__credit {
+    color: var(--color-text-muted);
+  }
+
+  :root .app-navbar__logo,
+  :root .app-navbar__avatar {
+    border: 1px solid;
+    border-color: var(--d7-dark) var(--d7-hilite) var(--d7-hilite) var(--d7-dark);
+    border-radius: 0;
+  }
+
+  :root .app-navbar__link {
+    border: 1px solid transparent;
+    border-radius: 0;
+    font-weight: 400;
+    transition: none;
+  }
+
+  :root .app-navbar__link:hover {
+    border-color: var(--d7-hilite) var(--d7-dark) var(--d7-dark) var(--d7-hilite);
+  }
+
+  :root .app-navbar__link--active,
+  :root .app-navbar__link--open {
+    border-color: var(--d7-dark) var(--d7-hilite) var(--d7-hilite) var(--d7-dark);
+    font-weight: 700;
+  }
+
+  :root .app-navbar__dropdown {
+    top: 100%;
+    padding: 2px;
+    border: 1px solid;
+    border-color: var(--d7-hilite) var(--d7-dark) var(--d7-dark) var(--d7-hilite);
+    border-radius: 0;
+    background: var(--d7-face-light);
+    box-shadow: 2px 2px 0 rgba(40, 70, 100, 0.35);
+  }
+
+  :root .app-navbar__dropdown-link {
+    border-radius: 0;
+    color: #000000;
+    font-weight: 400;
+    transition: none;
+  }
+
+  :root .app-navbar__dropdown-link:hover,
+  :root .app-navbar__dropdown-link--active {
+    background: var(--d7-select);
+    color: #ffffff;
+  }
+
+  /* Teks berjalan di bawah: dibuat seperti TStatusBar. */
+  :root .autotext-bar {
+    background: var(--d7-panel);
+    border-top: 1px solid var(--d7-dark);
+    box-shadow: inset 0 1px 0 var(--d7-hilite);
+  }
+
+  :root .autotext-bar__text {
+    color: #000000;
+    font-weight: 400;
+  }
+
+  /* ---------- Halaman login ---------- */
+  :root .login-page {
+    background: var(--d7-face);
+  }
+
+  :root .login-panel__divider {
+    border-radius: 0;
+    background: linear-gradient(90deg, var(--d7-title-from), var(--d7-title-to));
+  }
+}

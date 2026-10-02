@@ -1,5 +1,6 @@
 @import './styles/variables.css';
 @import './components/ui/ui.css';
+@import './styles/delphi7.css';
 
 * {
   box-sizing: border-box;
