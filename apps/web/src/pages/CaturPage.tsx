@@ -25,6 +25,16 @@ import {
   formatClock,
   isLowTime,
 } from '../lib/chessClock.ts';
+import {
+  applyEloResult,
+  eloDelta,
+  initialEloState,
+  parseEloState,
+  type EloDelta,
+  type EloState,
+  type HasilCatur,
+} from '../lib/chessElo.ts';
+import { ConfirmModal } from '../components/ui/ConfirmModal.tsx';
 import '../components/ui/ui.css';
 
 
@@ -58,6 +68,29 @@ const STATUS_TEXT: Record<GameStatus, string> = {
 };
 
 const TICK_MS = 200;
+
+const ELO_STORAGE_KEY = 'labprima.caturElo';
+
+function loadEloState(): EloState {
+  try {
+    return parseEloState(window.localStorage.getItem(ELO_STORAGE_KEY));
+  } catch {
+    // Penyimpanan browser bisa diblokir (mode privat); rating tetap jalan tanpa disimpan.
+    return initialEloState();
+  }
+}
+
+function saveEloState(state: EloState): void {
+  try {
+    window.localStorage.setItem(ELO_STORAGE_KEY, JSON.stringify(state));
+  } catch {
+    // Lihat loadEloState: gagal menyimpan tidak boleh mengganggu permainan.
+  }
+}
+
+function formatDelta(value: number): string {
+  return value > 0 ? `+${value}` : String(value);
+}
 
 interface GameSnapshot {
   readonly position: Position;
@@ -101,6 +134,12 @@ export function CaturPage() {
   const [clocks, setClocks] = useState<Clocks | null>(null);
   const [flagged, setFlagged] = useState<Color | null>(null);
 
+  const [elo, setElo] = useState<EloState>(loadEloState);
+  /** Perubahan rating dari partai yang baru selesai; null selama partai berjalan. */
+  const [eloChange, setEloChange] = useState<EloDelta | null>(null);
+  const [resetEloOpen, setResetEloOpen] = useState(false);
+  const eloRecordedRef = useRef(false);
+
   const current = history[history.length - 1] ?? initialSnapshot();
   const position = current.position;
   const status = useMemo(() => gameStatus(position), [position]);
@@ -128,6 +167,8 @@ export function CaturPage() {
       setPlayerColor(color);
       setTimeControlId(controlId);
       resetClocks(findTimeControl(controlId).ms);
+      eloRecordedRef.current = false;
+      setEloChange(null);
     },
     [resetClocks],
   );
@@ -238,6 +279,31 @@ export function CaturPage() {
   const winner = status === 'checkmate' ? opposite(position.turn) : flagged ? opposite(flagged) : null;
   const nameOf = (color: Color) => (color === playerColor ? namaPemain || 'Anda' : namaLawan);
 
+  // Rating dihitung sekali per partai, saat partai selesai. Ref dipakai supaya
+  // efek yang terpicu ulang (mis. ganti tingkat kesulitan) tidak menghitung dua kali.
+  useEffect(() => {
+    if (!over || eloRecordedRef.current) return;
+    eloRecordedRef.current = true;
+    const hasil: HasilCatur = winner === null ? 'seri' : winner === playerColor ? 'menang' : 'kalah';
+    const next = applyEloResult(elo, difficulty, hasil);
+    setEloChange(eloDelta(elo.rating, elo.lawan[difficulty], hasil));
+    setElo(next);
+    saveEloState(next);
+  }, [over, winner, playerColor, difficulty, elo]);
+
+  function resetElo() {
+    const next = initialEloState();
+    setElo(next);
+    setEloChange(null);
+    saveEloState(next);
+    setResetEloOpen(false);
+  }
+
+  const ratingLawan = elo.lawan[difficulty];
+  const jikaMenang = eloDelta(elo.rating, ratingLawan, 'menang').saya;
+  const jikaSeri = eloDelta(elo.rating, ratingLawan, 'seri').saya;
+  const jikaKalah = eloDelta(elo.rating, ratingLawan, 'kalah').saya;
+
   const statusLine = flagged
     ? `Waktu ${COLOR_LABEL[flagged]} habis — ${nameOf(opposite(flagged))} menang`
     : over
@@ -283,6 +349,7 @@ export function CaturPage() {
       <div>
         <PlayerBar
           name={namaLawan}
+          rating={ratingLawan}
           color={opponentColor}
           clockMs={clocks ? clocks[opponentColor] : null}
           active={!over && position.turn === opponentColor}
@@ -299,6 +366,7 @@ export function CaturPage() {
 
         <PlayerBar
           name={namaPemain || 'Anda'}
+          rating={elo.rating}
           color={playerColor}
           clockMs={clocks ? clocks[playerColor] : null}
           active={!over && position.turn === playerColor}
@@ -342,6 +410,44 @@ export function CaturPage() {
             🔄 Main sebagai {COLOR_LABEL[opposite(playerColor)]}
           </button>
         </div>
+
+        <fieldset className="legacy-groupbox" style={{ padding: '0.75rem', marginBottom: '0.75rem' }}>
+          <legend>Elo Rating</legend>
+          <table className="table table--compact" style={{ width: '100%' }}>
+            <tbody>
+              <tr>
+                <td>Elo {namaPemain || 'Anda'}</td>
+                <td style={{ textAlign: 'right', fontWeight: 700 }}>
+                  {elo.rating}
+                  {eloChange && ` (${formatDelta(eloChange.saya)})`}
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Elo {namaLawan} ({DIFFICULTY_LABELS[difficulty]})
+                </td>
+                <td style={{ textAlign: 'right', fontWeight: 700 }}>
+                  {ratingLawan}
+                  {eloChange && ` (${formatDelta(eloChange.lawan)})`}
+                </td>
+              </tr>
+              <tr>
+                <td>Menang / Kalah / Seri</td>
+                <td style={{ textAlign: 'right', fontWeight: 700 }}>
+                  {elo.menang} / {elo.kalah} / {elo.seri}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p className="form-hint" style={{ margin: '0.4rem 0' }}>
+            Partai berikutnya: menang {formatDelta(jikaMenang)}, seri {formatDelta(jikaSeri)}, kalah{' '}
+            {formatDelta(jikaKalah)}. Rating dihitung saat partai selesai; partai yang ditinggalkan tidak
+            dihitung.
+          </p>
+          <button type="button" className="btn btn--xs btn--danger" onClick={() => setResetEloOpen(true)}>
+            Reset Rating
+          </button>
+        </fieldset>
 
         <div className="form-field" style={{ marginBottom: '0.6rem' }}>
           <label htmlFor="catur-nama">Nama Anda</label>
@@ -433,6 +539,15 @@ export function CaturPage() {
         )}
       </div>
 
+      <ConfirmModal
+        open={resetEloOpen}
+        title="Reset Elo Rating"
+        message="Rating Anda, rating lawan, dan rekap menang/kalah/seri akan kembali ke awal. Lanjutkan?"
+        confirmLabel="Reset"
+        onClose={() => setResetEloOpen(false)}
+        onConfirm={resetElo}
+      />
+
       {pendingPromotion && (
         <div
           role="dialog"
@@ -472,12 +587,13 @@ export function CaturPage() {
 
 interface PlayerBarProps {
   readonly name: string;
+  readonly rating: number;
   readonly color: Color;
   readonly clockMs: number | null;
   readonly active: boolean;
 }
 
-function PlayerBar({ name, color, clockMs, active }: PlayerBarProps) {
+function PlayerBar({ name, rating, color, clockMs, active }: PlayerBarProps) {
   return (
     <div
       style={{
@@ -505,6 +621,7 @@ function PlayerBar({ name, color, clockMs, active }: PlayerBarProps) {
           aria-hidden="true"
         />
         {name}
+        <span style={{ fontWeight: 400, color: '#475569' }}>({rating})</span>
       </span>
       {clockMs !== null && (
         <span
