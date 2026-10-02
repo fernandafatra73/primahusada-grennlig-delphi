@@ -25,6 +25,7 @@ import { TabelAiModal } from '../components/TabelAiModal.tsx';
 import { FotoAnalisaTabel } from '../components/FotoAnalisaTabel.tsx';
 import { applyPhotoAdjustments } from '../lib/imageAdjust.ts';
 import { formatSharingShort } from '../lib/pilihanSharing.ts';
+import { handleFormFieldNavKeyDown } from '../lib/formFieldNav.ts';
 import {
   computeAutoSharingAmount,
   computeUmurYears,
@@ -2113,7 +2114,7 @@ export function PasienPage() {
         <form onSubmit={(e) => void onSubmitAdd(e)} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           <fieldset className="legacy-groupbox">
             <legend>Data Registrasi Radiologi</legend>
-            <div className="legacy-form-layout">
+            <div className="legacy-form-layout" onKeyDown={handleFormFieldNavKeyDown}>
               <div className="legacy-form-fields">
                 <div className="legacy-form-row">
                   <label htmlFor="reg-no">No Registrasi</label>

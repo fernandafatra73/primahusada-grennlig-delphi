@@ -10,6 +10,7 @@ import { useListQueryParams, useListSearch } from '../hooks/useListQueryParams.t
 import { useMutationReload } from '../hooks/useMutationReload.ts';
 import { usePaginatedList } from '../hooks/usePaginatedList.ts';
 import { apiDelete, apiGet, apiPatch, apiPost } from '../lib/api.ts';
+import { handleFormFieldNavKeyDown } from '../lib/formFieldNav.ts';
 import { UsgReportDocument, type UsgReportData } from '../pdf/UsgReportDocument.tsx';
 import { UsgKertasKecilReportDocument } from '../pdf/UsgKertasKecilReportDocument.tsx';
 import { UsgKesanReportDocument, type UsgKesanReportData } from '../pdf/UsgKesanReportDocument.tsx';
@@ -459,7 +460,7 @@ export function UsgPage() {
           {editing ? `✏️ Ubah Data USG — ${editing.namaPasien}` : '📝 Tambah Pasien USG'}
         </div>
         <div className="aifoto-frame__body">
-          <form onSubmit={(e) => void handleSubmit(e)} className="form-grid">
+          <form onSubmit={(e) => void handleSubmit(e)} className="form-grid" onKeyDown={handleFormFieldNavKeyDown}>
             <div
               className="form-field form-grid--full"
               style={{

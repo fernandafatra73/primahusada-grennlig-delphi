@@ -11,6 +11,7 @@ import { useListQueryParams, useListSearch } from '../hooks/useListQueryParams.t
 import { useMutationReload } from '../hooks/useMutationReload.ts';
 import { usePaginatedList } from '../hooks/usePaginatedList.ts';
 import { apiDelete, apiGet, apiPatch, apiPost } from '../lib/api.ts';
+import { handleFormFieldNavKeyDown } from '../lib/formFieldNav.ts';
 import type { PaginatedResponse } from '../lib/pagination.ts';
 import { formatRupiah } from '../lib/format.ts';
 import { PendaftaranReportDocument } from '../pdf/PendaftaranReportDocument.tsx';
@@ -910,7 +911,7 @@ export function PendaftaranUmumPage() {
             <fieldset className="legacy-groupbox legacy-groupbox--biru-hitam">
               <legend>Data Pendaftaran</legend>
               <div className="legacy-form-layout">
-                <div className="legacy-form-fields">
+                <div className="legacy-form-fields" onKeyDown={handleFormFieldNavKeyDown}>
                   <div className="legacy-form-row">
                     <label htmlFor="noRegistrasi">No Registrasi</label>
                     <input

@@ -10,6 +10,7 @@ import { useListQueryParams, useListSearch } from '../hooks/useListQueryParams.t
 import { useMutationReload } from '../hooks/useMutationReload.ts';
 import { usePaginatedList } from '../hooks/usePaginatedList.ts';
 import { apiDelete, apiGet, apiPatch, apiPost, apiPut } from '../lib/api.ts';
+import { handleFormFieldNavKeyDown } from '../lib/formFieldNav.ts';
 import { formatDateShort, formatRupiah, formatUmurDetail, formatUmurTahun, parseUmurManualToTanggalLahir } from '../lib/format.ts';
 import { terbilangRupiah } from '../lib/terbilang.ts';
 import type { PaginatedResponse } from '../lib/pagination.ts';
@@ -1732,7 +1733,7 @@ export function LaboratoriumPage({ onNavigate }: LaboratoriumPageProps) {
           onClose={() => setRegModalOpen(false)}
           size="lg"
         >
-          <form onSubmit={(e) => void handleRegisterPasien(e)} className="form-grid">
+          <form onSubmit={(e) => void handleRegisterPasien(e)} className="form-grid" onKeyDown={handleFormFieldNavKeyDown}>
             <div className="form-field form-field--full" style={{ marginBottom: '1rem', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)' }}>
               <label style={{ fontWeight: 600, color: 'var(--color-primary)' }}>Pilih dari Pendaftaran Umum (Opsional)</label>
               <select 
