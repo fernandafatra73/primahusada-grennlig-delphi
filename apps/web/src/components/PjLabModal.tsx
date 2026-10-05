@@ -16,7 +16,6 @@ interface PjLabItem {
   readonly bulan: string;
   readonly dokterNama: string;
   readonly jumlah: string;
-  readonly adminNama: string | null;
 }
 
 interface DokterItem {
@@ -29,24 +28,15 @@ interface PjLabModalProps {
   readonly onClose: () => void;
 }
 
-const ADMIN_STORAGE_KEY = 'pj_lab_admin_nama';
-const PDF_FILENAME = 'Laporan_PJ_Laboratorium.pdf';
+const PDF_FILENAME = 'Penanggung_Jawab_Laboratorium.pdf';
 
 function currentBulan(): string {
   const now = new Date();
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 }
 
-function readSavedAdmin(): string {
-  try {
-    return localStorage.getItem(ADMIN_STORAGE_KEY) ?? '';
-  } catch {
-    return '';
-  }
-}
-
 function emptyForm() {
-  return { bulan: currentBulan(), dokterNama: '', jumlah: '', adminNama: readSavedAdmin() };
+  return { bulan: currentBulan(), dokterNama: '', jumlah: '' };
 }
 
 export function PjLabModal({ open, onClose }: PjLabModalProps) {
@@ -93,7 +83,6 @@ export function PjLabModal({ open, onClose }: PjLabModalProps) {
       bulan: item.bulan,
       dokterNama: item.dokterNama,
       jumlah: item.jumlah,
-      adminNama: item.adminNama ?? '',
     });
     setError(null);
   }
@@ -111,18 +100,12 @@ export function PjLabModal({ open, onClose }: PjLabModalProps) {
       bulan: form.bulan,
       dokterNama: form.dokterNama,
       jumlah: Number(form.jumlah),
-      adminNama: form.adminNama,
     };
     try {
       if (editingId) {
         await apiPatch(`/api/pj-lab/${editingId}`, body);
       } else {
         await apiPost('/api/pj-lab', body);
-      }
-      try {
-        localStorage.setItem(ADMIN_STORAGE_KEY, form.adminNama);
-      } catch {
-        // Hanya kenyamanan; gagal simpan nama admin tidak menghalangi apa pun.
       }
       setEditingId(null);
       setForm(emptyForm());
@@ -162,7 +145,6 @@ export function PjLabModal({ open, onClose }: PjLabModalProps) {
             bulan: formatBulanId(p.bulan),
             dokterNama: p.dokterNama,
             jumlahFormatted: formatRupiah(p.jumlah),
-            adminNama: p.adminNama ?? '',
           })),
           totalFormatted: formatRupiah(total),
         }}
@@ -222,14 +204,6 @@ export function PjLabModal({ open, onClose }: PjLabModalProps) {
               onChange={(e) => setForm((f) => ({ ...f, jumlah: e.target.value }))}
             />
           </div>
-          <div className="form-field">
-            <label htmlFor="pj-admin">Nama Admin (TTD)</label>
-            <input
-              id="pj-admin"
-              value={form.adminNama}
-              onChange={(e) => setForm((f) => ({ ...f, adminNama: e.target.value }))}
-            />
-          </div>
           <div className="form-actions form-actions--end form-grid--full">
             <button type="submit" className="btn btn--primary" disabled={saving}>
               {saving ? 'Menyimpan…' : editingId ? 'Simpan Perubahan' : '+ Tambah'}
@@ -255,14 +229,13 @@ export function PjLabModal({ open, onClose }: PjLabModalProps) {
               <th>Bulan</th>
               <th>Nama Dokter</th>
               <th style={{ textAlign: 'right' }}>Jumlah</th>
-              <th>TTD Admin</th>
               <th style={{ width: '70px' }}>Aksi</th>
             </tr>
           </thead>
           <tbody>
             {items.length === 0 ? (
               <tr>
-                <td colSpan={6} style={{ textAlign: 'center', padding: '1.5rem', color: '#64748b' }}>
+                <td colSpan={5} style={{ textAlign: 'center', padding: '1.5rem', color: '#64748b' }}>
                   {loading ? 'Memuat…' : 'Belum ada data PJ.'}
                 </td>
               </tr>
@@ -273,7 +246,6 @@ export function PjLabModal({ open, onClose }: PjLabModalProps) {
                   <td>{formatBulanId(p.bulan)}</td>
                   <td>{p.dokterNama}</td>
                   <td style={{ textAlign: 'right', fontWeight: 600 }}>{formatRupiah(p.jumlah)}</td>
-                  <td>{p.adminNama || '—'}</td>
                   <td>
                     <TableRowActions
                       onEdit={() => startEdit(p)}
@@ -293,7 +265,6 @@ export function PjLabModal({ open, onClose }: PjLabModalProps) {
                   Total
                 </td>
                 <td style={{ textAlign: 'right', fontWeight: 700 }}>{formatRupiah(total)}</td>
-                <td />
                 <td />
               </tr>
             </tfoot>
@@ -326,7 +297,7 @@ export function PjLabModal({ open, onClose }: PjLabModalProps) {
         blob={previewBlob}
         filename={PDF_FILENAME}
         onClose={() => setPreviewBlob(null)}
-        title="Pratinjau Laporan PJ Laboratorium"
+        title="Pratinjau Penanggung Jawab Laboratorium"
       />
     </>
   );

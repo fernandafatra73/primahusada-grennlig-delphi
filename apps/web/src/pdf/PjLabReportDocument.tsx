@@ -6,7 +6,6 @@ export interface PjLabReportItem {
   readonly bulan: string;
   readonly dokterNama: string;
   readonly jumlahFormatted: string;
-  readonly adminNama: string;
 }
 
 export interface PjLabReportData {
@@ -15,6 +14,9 @@ export interface PjLabReportData {
   readonly items: readonly PjLabReportItem[];
   readonly totalFormatted: string;
 }
+
+/** Nama yang menandatangani laporan, dicetak di atas garis "Klinik Prima Husada". */
+const PENANDATANGAN = 'Zakiah';
 
 const BLUE = '#2b4c9b';
 const BLACK = '#1a1a1a';
@@ -94,7 +96,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderBottomWidth: 0.5,
     borderColor: BLACK,
-    minHeight: 42,
+    minHeight: 22,
   },
   totalRow: {
     flexDirection: 'row',
@@ -107,15 +109,10 @@ const styles = StyleSheet.create({
     borderColor: BLACK,
     justifyContent: 'center',
   },
-  colNo: { width: '7%', textAlign: 'center' },
-  colBulan: { width: '20%' },
-  colDokter: { width: '30%' },
-  colJumlah: { width: '18%', textAlign: 'right' },
-  colTtd: { width: '25%', borderRightWidth: 0, justifyContent: 'flex-end', alignItems: 'center' },
-  ttdName: {
-    fontSize: 7.5,
-    color: '#475569',
-  },
+  colNo: { width: '8%', textAlign: 'center' },
+  colBulan: { width: '24%' },
+  colDokter: { width: '40%' },
+  colJumlah: { width: '28%', textAlign: 'right', borderRightWidth: 0 },
   footer: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
@@ -128,6 +125,10 @@ const styles = StyleSheet.create({
   footerTitle: {
     marginBottom: 40,
   },
+  footerName: {
+    fontWeight: 'bold',
+    marginBottom: 2,
+  },
   footerLine: {
     borderTopWidth: 0.8,
     borderColor: BLACK,
@@ -139,7 +140,7 @@ const styles = StyleSheet.create({
 
 export function PjLabReportDocument({ data }: { readonly data: PjLabReportData }) {
   return (
-    <Document title="Laporan_PJ_Laboratorium.pdf">
+    <Document title="Penanggung_Jawab_Laboratorium.pdf">
       <Page size="A4" style={styles.page}>
         <View style={styles.headerRow}>
           {data.logoSrc ? <Image style={styles.logo} src={data.logoSrc} /> : null}
@@ -156,7 +157,7 @@ export function PjLabReportDocument({ data }: { readonly data: PjLabReportData }
         <View style={styles.dividerThick} />
         <View style={styles.dividerThin} />
 
-        <Text style={styles.title}>Laporan PJ Laboratorium</Text>
+        <Text style={styles.title}>Penanggung Jawab Laboratorium</Text>
         <Text style={styles.subtitle}>Tanggal cetak: {data.tanggalCetak}</Text>
 
         <View style={styles.table}>
@@ -165,7 +166,6 @@ export function PjLabReportDocument({ data }: { readonly data: PjLabReportData }
             <Text style={[styles.cell, styles.colBulan]}>Bulan</Text>
             <Text style={[styles.cell, styles.colDokter]}>Nama Dokter</Text>
             <Text style={[styles.cell, styles.colJumlah]}>Jumlah</Text>
-            <Text style={[styles.cell, styles.colTtd, { textAlign: 'center' }]}>TTD Admin</Text>
           </View>
           {data.items.length === 0 ? (
             <View style={styles.trRow}>
@@ -180,23 +180,19 @@ export function PjLabReportDocument({ data }: { readonly data: PjLabReportData }
                 <Text style={[styles.cell, styles.colBulan]}>{row.bulan}</Text>
                 <Text style={[styles.cell, styles.colDokter]}>{truncatePdfCell(row.dokterNama, 34)}</Text>
                 <Text style={[styles.cell, styles.colJumlah]}>{row.jumlahFormatted}</Text>
-                {/* Kolom dibiarkan kosong untuk tanda tangan basah; nama admin di bawahnya. */}
-                <View style={[styles.cell, styles.colTtd]}>
-                  <Text style={styles.ttdName}>{row.adminNama ? `( ${row.adminNama} )` : ''}</Text>
-                </View>
               </View>
             ))
           )}
           <View style={styles.totalRow}>
-            <Text style={[styles.cell, { width: '57%', textAlign: 'right' }]}>Total</Text>
+            <Text style={[styles.cell, { width: '72%', textAlign: 'right' }]}>Total</Text>
             <Text style={[styles.cell, styles.colJumlah]}>{data.totalFormatted}</Text>
-            <Text style={[styles.cell, styles.colTtd]} />
           </View>
         </View>
 
         <View style={styles.footer} wrap={false}>
           <View style={styles.footerBox}>
             <Text style={styles.footerTitle}>Mengetahui,</Text>
+            <Text style={styles.footerName}>{PENANDATANGAN}</Text>
             <Text style={styles.footerLine}>Klinik Prima Husada</Text>
           </View>
         </View>
