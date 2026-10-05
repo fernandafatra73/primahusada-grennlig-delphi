@@ -479,6 +479,11 @@
     background: var(--d7-face);
   }
 
+  :root .login-scene {
+    border-color: var(--d7-shadow) var(--d7-hilite) var(--d7-hilite) var(--d7-shadow);
+    border-radius: 0;
+  }
+
   :root .login-panel__divider {
     border-radius: 0;
     background: linear-gradient(90deg, var(--d7-title-from), var(--d7-title-to));

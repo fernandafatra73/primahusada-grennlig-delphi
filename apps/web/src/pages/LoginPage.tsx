@@ -1,5 +1,6 @@
 import { useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
 import logoPrimahusada from '@src/image/logo-primahusada.png';
+import { LoginTakeoffScene } from '../components/LoginTakeoffScene.tsx';
 import { apiPost } from '../lib/api.ts';
 import type { AuthUser } from '../lib/auth.ts';
 import './login.css';
@@ -50,6 +51,8 @@ export function LoginPage({ onLogin }: LoginPageProps) {
         </div>
 
         <div className="login-panel__divider" aria-hidden />
+
+        <LoginTakeoffScene />
 
         <h1 id="login-title" className="login-panel__title">Masuk ke sistem</h1>
 

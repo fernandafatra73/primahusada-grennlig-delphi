@@ -72,3 +72,128 @@
   width: 100%;
   justify-content: center;
 }
+
+/* ---------- Ilustrasi lepas landas ---------- */
+.login-scene {
+  margin: 0 0 1.25rem;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-button);
+  background: #d6e9f8;
+}
+
+.login-scene__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 360 / 140;
+}
+
+.login-scene__plane {
+  animation: login-takeoff 8s linear infinite;
+}
+
+.login-scene__gear {
+  animation: login-gear 8s linear infinite;
+}
+
+.login-scene__shadow {
+  animation: login-shadow 8s linear infinite;
+}
+
+.login-scene__clouds {
+  animation: login-clouds 24s linear infinite alternate;
+}
+
+.login-scene__lights {
+  animation: login-lights 1.6s steps(2, jump-none) infinite;
+}
+
+/* Meluncur di landasan, rotasi hidung naik, lalu menanjak ke kanan atas. */
+@keyframes login-takeoff {
+  0% {
+    transform: translate(-50px, 124px) rotate(0deg);
+    animation-timing-function: ease-in;
+  }
+  45% {
+    transform: translate(190px, 124px) rotate(0deg);
+  }
+  55% {
+    transform: translate(240px, 120px) rotate(-11deg);
+  }
+  75% {
+    transform: translate(320px, 78px) rotate(-15deg);
+  }
+  100% {
+    transform: translate(430px, 22px) rotate(-15deg);
+  }
+}
+
+@keyframes login-shadow {
+  0% {
+    transform: translate(-46px, 0) scaleX(1);
+    opacity: 0.3;
+    animation-timing-function: ease-in;
+  }
+  45% {
+    transform: translate(194px, 0) scaleX(1);
+    opacity: 0.3;
+  }
+  75% {
+    transform: translate(330px, 0) scaleX(0.4);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(430px, 0) scaleX(0.4);
+    opacity: 0;
+  }
+}
+
+/* Roda dimasukkan setelah pesawat mengudara. */
+@keyframes login-gear {
+  0%,
+  62% {
+    opacity: 1;
+  }
+  70%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes login-clouds {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-30px);
+  }
+}
+
+@keyframes login-lights {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-scene__plane,
+  .login-scene__gear,
+  .login-scene__shadow,
+  .login-scene__clouds,
+  .login-scene__lights {
+    animation: none;
+  }
+
+  .login-scene__plane {
+    transform: translate(260px, 104px) rotate(-13deg);
+  }
+
+  .login-scene__shadow {
+    transform: translate(266px, 0) scaleX(0.7);
+    opacity: 0.15;
+  }
+}
