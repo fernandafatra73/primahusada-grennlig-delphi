@@ -1198,3 +1198,17 @@ model FotoPasienAnalisa {
 
   @@index([pasienId])
 }
+
+/// Catatan PJ (penanggung jawab) Laboratorium per bulan: dokter, jumlah, dan admin yang menandatangani.
+model PjLab {
+  id         String   @id @default(cuid())
+  /// Bulan dalam format YYYY-MM.
+  bulan      String
+  dokterNama String
+  jumlah     Decimal
+  adminNama  String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([bulan])
+}

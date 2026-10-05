@@ -32,6 +32,7 @@ import {
   type ParsedLabData,
 } from '../lib/labKesan.ts';
 import { serializeKlinisData } from '../lib/penunjang.ts';
+import { PjLabModal } from '../components/PjLabModal.tsx';
 import '../components/ui/ui.css';
 
 export {
@@ -238,6 +239,7 @@ export function LaboratoriumPage({ onNavigate }: LaboratoriumPageProps) {
 
   // Master Paket state
   const [paketModalOpen, setPaketModalOpen] = useState(false);
+  const [pjModalOpen, setPjModalOpen] = useState(false);
   const [paketList, setPaketList] = useState<PaketLabData[]>([]);
   const [paketLoading, setPaketLoading] = useState(false);
   const [editPaket, setEditPaket] = useState<PaketLabData | null>(null);
@@ -869,6 +871,15 @@ export function LaboratoriumPage({ onNavigate }: LaboratoriumPageProps) {
             style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', whiteSpace: 'nowrap' }}
           >
             ⚙️ Master Paket
+          </button>
+          <button
+            type="button"
+            className="btn btn--secondary btn--sm"
+            onClick={() => setPjModalOpen(true)}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', whiteSpace: 'nowrap' }}
+            title="Catatan PJ Laboratorium per bulan & cetak dengan kop surat"
+          >
+            📋 PJ
           </button>
           <button
             type="button"
@@ -1576,6 +1587,8 @@ export function LaboratoriumPage({ onNavigate }: LaboratoriumPageProps) {
           </div>
         </Modal>
       )}
+
+      <PjLabModal open={pjModalOpen} onClose={() => setPjModalOpen(false)} />
 
       {/* ─── Master Paket Pemeriksaan Modal ─────────────────────────────────── */}
       <Modal

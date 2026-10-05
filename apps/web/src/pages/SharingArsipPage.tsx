@@ -82,6 +82,15 @@ function getPeriodDates(
   return { startDate: '', endDate: '' };
 }
 
+/** ISO timestamp → YYYY-MM-DD dalam zona waktu lokal, untuk input type="date". */
+function toLocalDateInput(iso: string): string {
+  const d = new Date(iso);
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+
 interface SharingArsipPageProps {
   readonly modul: 'RADIOLOGI' | 'LABORATORIUM';
 }
@@ -147,6 +156,7 @@ export function SharingArsipPage({ modul }: SharingArsipPageProps) {
 
   const [editing, setEditing] = useState<ArsipPasienItem | null>(null);
   const [editForm, setEditForm] = useState({
+    tanggal: '',
     nama: '',
     alamat: '',
     pengirimNama: '',
@@ -178,6 +188,7 @@ export function SharingArsipPage({ modul }: SharingArsipPageProps) {
 
   function openEdit(item: ArsipPasienItem) {
     setEditForm({
+      tanggal: toLocalDateInput(item.createdAt),
       nama: item.nama,
       alamat: item.alamat ?? '',
       pengirimNama: item.pengirimNama,
@@ -198,6 +209,7 @@ export function SharingArsipPage({ modul }: SharingArsipPageProps) {
     setError(null);
     try {
       await apiPatch(`/api/pasien-duplikat/${editing.id}`, {
+        tanggal: editForm.tanggal,
         nama: editForm.nama,
         alamat: editForm.alamat || undefined,
         pengirimNama: editForm.pengirimNama,
@@ -761,6 +773,16 @@ export function SharingArsipPage({ modul }: SharingArsipPageProps) {
           onClose={() => setEditing(null)}
         >
           <form onSubmit={(e) => void handleEditSubmit(e)} className="form-grid">
+            <div className="form-field form-field--full">
+              <label htmlFor="sharing-edit-tanggal">Tanggal *</label>
+              <input
+                id="sharing-edit-tanggal"
+                type="date"
+                required
+                value={editForm.tanggal}
+                onChange={(e) => setEditForm((f) => ({ ...f, tanggal: e.target.value }))}
+              />
+            </div>
             <div className="form-field form-field--full">
               <label htmlFor="sharing-edit-nama">Nama Pasien *</label>
               <input

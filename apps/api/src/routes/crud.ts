@@ -14,6 +14,7 @@ import { hashPassword } from '../lib/password.js';
 import { nextPendaftaranUmumCode, nextRegCode } from '../lib/regCode.js';
 import { buildPaginationMeta, parsePagination } from '../lib/pagination.js';
 import { normalizeSharingKeterangan, parseSharingNominal } from '../lib/pilihanSharing.js';
+import { parsePjBulan } from '../lib/pjLab.js';
 import { fetchXauSpotPrice, fetchLatestXauDailyPoint } from '../lib/xausGoldPrice.js';
 import { fetchGoldFuturesPrice } from '../lib/goldFuturesPrice.js';
 import { computePivotLevels } from '../lib/dailyTradingPivotJob.js';
@@ -3417,7 +3418,7 @@ export async function registerCrudRoutes(app: FastifyInstance) {
     };
   });
 
-  /** Ubah data satu baris arsip Duplikat (nama, alamat, dokter pengirim, pemeriksaan, harga, status). */
+  /** Ubah data satu baris arsip Duplikat (nama, alamat, dokter pengirim, pemeriksaan, harga, status, tanggal). */
   app.patch<{
     Params: { id: string };
     Body: {
@@ -3433,11 +3434,25 @@ export async function registerCrudRoutes(app: FastifyInstance) {
       totalSharing?: number;
       paymentStatus?: 'BELUM_LUNAS' | 'LUNAS';
       hasilStatus?: 'MENUNGGU_HASIL' | 'SELESAI';
+      /** Tanggal arsip (YYYY-MM-DD); jam aslinya dipertahankan. */
+      tanggal?: string;
     };
   }>('/api/pasien-duplikat/:id', async (req, reply) => {
     const existing = await prisma.pasienDuplikat.findUnique({ where: { id: req.params.id } });
     if (!existing) return reply.status(404).send({ error: 'Arsip tidak ditemukan' });
     const b = req.body;
+    let registeredAt = existing.registeredAt;
+    if (b.tanggal !== undefined) {
+      const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(b.tanggal);
+      if (!m) return badRequest(reply, 'Tanggal tidak valid (format YYYY-MM-DD)');
+      const [year, month, day] = [Number(m[1]), Number(m[2]), Number(m[3])];
+      const parsed = new Date(existing.registeredAt);
+      parsed.setFullYear(year, month - 1, day);
+      if (parsed.getMonth() !== month - 1 || parsed.getDate() !== day) {
+        return badRequest(reply, 'Tanggal tidak valid');
+      }
+      registeredAt = parsed;
+    }
     const item = await prisma.pasienDuplikat.update({
       where: { id: req.params.id },
       data: {
@@ -3454,6 +3469,7 @@ export async function registerCrudRoutes(app: FastifyInstance) {
         totalSharing: b.totalSharing !== undefined ? b.totalSharing : existing.totalSharing,
         paymentStatus: b.paymentStatus ?? existing.paymentStatus,
         hasilStatus: b.hasilStatus ?? existing.hasilStatus,
+        registeredAt,
       },
     });
     return {
@@ -4835,6 +4851,73 @@ Aturan PENTING:
   app.delete<{ Params: { id: string } }>('/api/logo-perusahaan/:id', async (req) => {
     await prisma.logoPerusahaan.delete({ where: { id: req.params.id } });
     return { ok: true };
+  });
+
+  /** Catatan PJ Laboratorium: daftar lengkap (jumlahnya kecil, satu-dua baris per bulan) urut bulan. */
+  app.get('/api/pj-lab', async () => {
+    const items = await prisma.pjLab.findMany({ orderBy: [{ bulan: 'asc' }, { createdAt: 'asc' }] });
+    return { items: items.map((p) => ({ ...p, jumlah: serializeDecimal(p.jumlah) })) };
+  });
+
+  app.post<{
+    Body: { bulan?: string; dokterNama?: string; jumlah?: number | string; adminNama?: string | null };
+  }>('/api/pj-lab', async (req, reply) => {
+    const bulan = parsePjBulan(req.body.bulan);
+    if (!bulan) return badRequest(reply, 'Bulan tidak valid (format YYYY-MM)');
+    const dokterNama = req.body.dokterNama?.trim();
+    if (!dokterNama) return badRequest(reply, 'Nama dokter wajib diisi');
+    const jumlah = parseSharingNominal(req.body.jumlah);
+    if (jumlah === null) return badRequest(reply, 'Jumlah tidak valid');
+    const item = await prisma.pjLab.create({
+      data: { bulan, dokterNama, jumlah, adminNama: req.body.adminNama?.trim() || null },
+    });
+    return reply.status(201).send({ item: { ...item, jumlah: serializeDecimal(item.jumlah) } });
+  });
+
+  app.patch<{
+    Params: { id: string };
+    Body: { bulan?: string; dokterNama?: string; jumlah?: number | string; adminNama?: string | null };
+  }>('/api/pj-lab/:id', async (req, reply) => {
+    const existing = await prisma.pjLab.findUnique({ where: { id: req.params.id } });
+    if (!existing) return reply.status(404).send({ error: 'Data PJ tidak ditemukan' });
+    let bulan = existing.bulan;
+    if (req.body.bulan !== undefined) {
+      const parsed = parsePjBulan(req.body.bulan);
+      if (!parsed) return badRequest(reply, 'Bulan tidak valid (format YYYY-MM)');
+      bulan = parsed;
+    }
+    let dokterNama = existing.dokterNama;
+    if (req.body.dokterNama !== undefined) {
+      const trimmed = req.body.dokterNama.trim();
+      if (!trimmed) return badRequest(reply, 'Nama dokter wajib diisi');
+      dokterNama = trimmed;
+    }
+    let jumlah: Decimal | number = existing.jumlah;
+    if (req.body.jumlah !== undefined) {
+      const parsed = parseSharingNominal(req.body.jumlah);
+      if (parsed === null) return badRequest(reply, 'Jumlah tidak valid');
+      jumlah = parsed;
+    }
+    const item = await prisma.pjLab.update({
+      where: { id: req.params.id },
+      data: {
+        bulan,
+        dokterNama,
+        jumlah,
+        adminNama:
+          req.body.adminNama !== undefined ? req.body.adminNama?.trim() || null : existing.adminNama,
+      },
+    });
+    return { item: { ...item, jumlah: serializeDecimal(item.jumlah) } };
+  });
+
+  app.delete<{ Params: { id: string } }>('/api/pj-lab/:id', async (req, reply) => {
+    try {
+      await prisma.pjLab.delete({ where: { id: req.params.id } });
+      return { ok: true };
+    } catch {
+      return reply.status(404).send({ error: 'Data PJ tidak ditemukan' });
+    }
   });
 
   app.get('/api/autotext', async () => {
